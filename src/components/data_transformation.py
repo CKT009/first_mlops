@@ -41,14 +41,14 @@ class DataTransformation:
             num_pipeline = Pipeline(
                 steps=[
                     ('imputer', SimpleImputer(strategy='median')),
-                    ('scaler', StandardScaler)
+                    ('scaler', StandardScaler())
                 ]
             )
             
             cat_pipeline = Pipeline(
                 steps=[
                     ('imputer', SimpleImputer(strategy='most_frequent')),
-                    ('ordinalencoder', OrdinalEncoder(categories=[cut_categories,color_categories,clarity_categories]))
+                    ('ordinalencoder', OrdinalEncoder(categories=[cut_categories,color_categories,clarity_categories])),
                     ('scaler', StandardScaler())
                 ]
             )
@@ -70,7 +70,7 @@ class DataTransformation:
     def initialize_data_transformation(self, train_path, test_path):
         
         try:
-            train_df = pd.read_table(train_path)
+            train_df = pd.read_csv(train_path)
             test_df = pd.read_csv(test_path)
             
             logging.info("read train and test data complete")
@@ -88,7 +88,7 @@ class DataTransformation:
             input_feature_test_df = test_df.drop(columns=drop_columns, axis=1)
             target_features_test_df = test_df[target_column_name]
             
-            input_features_train_arr = preprocessing_obj.transform(input_feature_test_df)
+            input_features_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
             
             input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
             
