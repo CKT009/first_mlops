@@ -22,10 +22,39 @@ class ModelEvaluation:
         
         return rmse, mae, r2
     
-    def initiate_model_evaluation(self, train_array, teat_array):
+    def initiate_model_evaluation(self, train_array, test_array):
         
         try:
-            pass
-        
+            X_test, y_test = (test_array[:,:-1], test_array[:, -1])
+            
+            model_path = os.path.join("artifacts", "model.pkl")
+            model = load_object(model_path)
+            
+            #mlflow.set_registry_uri("")
+            
+            logging.info("model has register")
+            
+            tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
+            
+            print(tracking_url_type_store)
+            
+            
+            with mlflow.start_run():
+                
+                prediction = model.predict(X_test)
+                
+                (rmse,mae, r2) = self.eval_metrics(y_test, prediction)
+                
+                mlflow.log_metric("rmse", rmse)
+                mlflow.log_metric("mse", mae)
+                mlflow.log_metric("r2", r2)
+                
+                if tracking_url_type_store != "file":
+                    
+                    mlflow.sklearn.log_model(model, "modl", registered_model_name="ml_model")
+                    
+                else:
+                    mlflow.sklearn.log_model(model, "model")          
+                
         except Exception as e:
             raise customexception(e, sys)
